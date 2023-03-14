@@ -1,0 +1,49 @@
+name: CI
+
+# Manual trigger
+on:
+   workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    
+    # https://docs.github.com/en/enterprise-cloud@latest/actions/security-guides/automatic-token-authentication
+    #permissions:
+      #contents: write
+      #actions: write
+    env: 
+      GITHUB_TOKEN: ${{ secrets.TEST_PAT }}
+      
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      # Runs a single command using the runners shell
+      - name: Run a one-line script
+        run: echo Hello, world!
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          echo Add other actions to build,
+          echo test, and deploy your project.
+      # sourced from https://stackoverflow.com/questions/57921401/push-to-origin-from-github-action
+      # extra ref https://stackoverflow.com/questions/18935539/authenticate-with-github-using-a-token
+      - name: Example git push action
+        # q: is this even doing anything? "permissions:" is set above ?
+        # a: when "permissions:" is commented out and this is uncommented, the default token is all read and returns 403s
+        #env: 
+        #  GITHUB_TOKEN: ${{ secrets.TEST_PAT }}
+        run: |
+          date >> generated.txt
+          git config user.name "github-actions"
+          git config user.email "github-actions@example.invalid"
+          git checkout -b dev
+          git add .
+          git commit -m "committing"
+          GIT_TRACE=1 GIT_CURL_VERBOSE=1 git push --set-upstream origin dev
